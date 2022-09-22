@@ -1,0 +1,93 @@
+---
+title: "Pizzia Analytics"
+author: "David Jackson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(scales)
+library(DBI)
+library(odbc)
+library(janitor)
+
+```
+
+## Import and Clean Data
+
+```{r}
+rm(list=ls())
+# Order Types
+details <- read_csv("./Data/order_details.csv") %>% clean_names() 
+```
+```{r}
+# Orders
+orders <- read_csv("./Data/orders.csv") %>% clean_names()
+```
+```{r}
+# Pizzia Types
+ptypes <- read_csv("./Data/pizza_types.csv") %>% clean_names()
+```
+```{r}
+# Pizzas
+pizzas <- read_csv("./Data/pizzas.csv") %>% clean_names()
+```
+
+### Upload Data to SQL Server 2019
+
+```{r}
+## https://db.rstudio.com/databases/microsoft-sql-server/
+con <- DBI::dbConnect(odbc::odbc(), 
+                      Driver = "SQL Server", 
+                      Server = "localhost\\SQLEXPRESS", 
+                      Database = "mavenanalytics", 
+                      Trusted_Connection = "True")
+```
+
+```{r}
+# Write Tables
+dbWriteTable(con, "details",details ,overwrite=TRUE)
+dbListFields(con,"details")
+```
+```{r}
+# Write Tables
+dbWriteTable(con, "orders",orders ,overwrite=TRUE)
+dbListFields(con,"orders")
+```
+```{r}
+# Write Tables
+dbWriteTable(con, "pizzas",pizzas ,overwrite=TRUE)
+dbListFields(con,"pizzas")
+```
+```{r}
+# Write Tables
+dbWriteTable(con, "ptypes",ptypes ,overwrite=TRUE)
+dbListFields(con,"ptypes")
+```
+
+## Requirements
+
+Here are some questions that we'd like to be able to answer:
+
+* What days and times do we tend to be busiest?
+* How many pizzas are we making during peak periods?
+* What are our best and worst selling pizzas?
+* What's our average order value?
+* How well are we utilizing our seating capacity? (we have 15 tables and 60 seats)
+* That's all I can think of for now, but if you have any other ideas I'd love to hear them – you're the expert!
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
