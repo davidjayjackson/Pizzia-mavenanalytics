@@ -12,6 +12,7 @@ library(scales)
 library(DBI)
 library(odbc)
 library(janitor)
+library(lubridate)
 
 ```
 
@@ -25,6 +26,9 @@ details <- read_csv("./Data/order_details.csv") %>% clean_names()
 ```{r}
 # Orders
 orders <- read_csv("./Data/orders.csv") %>% clean_names()
+orders$WDay <- wday(orders$date,label = TRUE)
+orders$Hour <- hour(orders$time)
+orders$Month <- month(orders$date,label = TRUE)
 ```
 ```{r}
 # Pizzia Types
@@ -78,16 +82,27 @@ Here are some questions that we'd like to be able to answer:
 * How well are we utilizing our seating capacity? (we have 15 tables and 60 seats)
 * That's all I can think of for now, but if you have any other ideas I'd love to hear them – you're the expert!
 
-```{r cars}
-summary(cars)
+### Quick EDA
+```{r}
+orders %>% count(date) %>% ggplot() + geom_line(aes(x=date, y=n)) + geom_smooth(aes(x=date, y=n))
+```
+```{r}
+orders %>% count(WDay) %>% ggplot() + geom_col(aes(x=WDay,y=n))
+```
+```{r}
+orders %>% count(Hour) %>% ggplot() + geom_col(aes(x=Month,y=n))
+```
+```{r}
+orders %>% count(Month) %>% ggplot() + geom_col(aes(x=Month,y=n))
 ```
 
-## Including Plots
+## Join on pizzia type between details and ptypes
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+ptypes %>% left_join(details,by = c("pizza_type_id" = "pizza_id"))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+details %>% count(pizza_id)
+```
+
