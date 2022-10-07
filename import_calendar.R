@@ -8,8 +8,10 @@ library(janitor)
 library(DBI)
 library(odbc)
 
+
 rm(list=ls())
 calendar <- read_excel("./calendar_table.xlsx") %>% clean_names()
+calendar$date <- lubridate::ymd(calendar$date)
 
 ## https://db.rstudio.com/databases/microsoft-sql-server/
 con <- DBI::dbConnect(odbc::odbc(), 
